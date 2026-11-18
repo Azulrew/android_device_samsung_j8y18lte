@@ -226,7 +226,8 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     android.hardware.keymaster@3.0.vendor \
     android.hardware.keymaster@4.0.vendor \
-    libkeymaster_messages.vendor
+    libkeymaster_messages.vendor \
+    libstdc++.vendor
 
 # VNDK v29 Compatibility Shims (strictly in /vendor/lib for Android 12 VNDK isolation)
 PRODUCT_COPY_FILES += \

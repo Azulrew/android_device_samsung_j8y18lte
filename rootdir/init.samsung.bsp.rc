@@ -29,7 +29,7 @@
 #
 
 on early-init
-    write /dev/watchdog "s"
+    write /dev/watchdog "V"
 
 on init
     chown root system /dev/watchdog

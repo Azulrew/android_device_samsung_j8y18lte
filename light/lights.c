@@ -20,7 +20,7 @@
 // #define LOG_NDEBUG 0
 
 #include <log/log.h>
-#include <cutils/properties.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>

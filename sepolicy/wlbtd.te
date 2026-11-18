@@ -21,8 +21,8 @@ allow wlbtd vendor_toolbox_exec:file rx_file_perms;
 
 allow wlbtd proc:file r_file_perms;
 
-allow wlbtd sdcardfs:dir create_dir_perms;
-allow wlbtd sdcardfs:file create_file_perms;
+allow wlbtd fuse:dir create_dir_perms;
+allow wlbtd fuse:file create_file_perms;
 
 allow wlbtd storage_file:dir r_dir_perms;
 allow wlbtd storage_file:file r_file_perms;

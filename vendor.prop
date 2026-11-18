@@ -7,7 +7,6 @@ debug.stagefright.omx_default_rank=0
 vendor.mediacodec.binder.size=6
 vendor.vidc.disable.split.mode=1
 vendor.vidc.enc.disable.pq=true
-ro.hardware.nfc_nci=nqx.default
 vendor.hw.fm.init=0
 persist.vendor.qcomsysd.enabled=1
 ro.security.cass.feature=1

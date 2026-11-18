@@ -1,28 +1,6 @@
 /*
    Copyright (c) 2016, The CyanogenMod Project. All rights reserved.
-   Redistribution and use in source and binary forms, with or without
-   modification, are permitted provided that the following conditions are
-   met:
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following
-      disclaimer in the documentation and/or other materials provided
-      with the distribution.
-    * Neither the name of The Linux Foundation nor the names of its
-      contributors may be used to endorse or promote products derived
-      from this software without specific prior written permission.
-   THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
-   WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT
-   ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS
-   BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-   BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-   OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
-   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+   SPDX-License-Identifier: Apache-2.0
  */
 
 #include <stdlib.h>
@@ -32,37 +10,44 @@
 
 #include <android-base/file.h>
 #include <android-base/logging.h>
-#include <android-base/strings.h>
 #include <android-base/properties.h>
+#include <android-base/strings.h>
 
-#include "property_service.h"
 #include "vendor_init.h"
 
 using android::base::GetProperty;
-using android::base::ReadFileToString;
-using android::base::Trim;
 
-void property_override(char const prop[], char const value[])
+static void property_override(char const prop[], char const value[], bool add = true)
 {
-    prop_info *pi;
+    auto pi = (prop_info *) __system_property_find(prop);
 
-    pi = (prop_info*) __system_property_find(prop);
-    if (pi)
+    if (pi != nullptr) {
         __system_property_update(pi, value, strlen(value));
-    else
+    } else if (add) {
         __system_property_add(prop, strlen(prop), value, strlen(value));
+    }
 }
 
-void property_override_dual(char const system_prop[],
-        char const vendor_prop[], char const value[])
+static void set_ro_build_prop(const std::string &prop, const std::string &value)
 {
-    property_override(system_prop, value);
-    property_override(vendor_prop, value);
+    const char *partitions[] = { "", "odm.", "product.", "system.", "system_ext.", "vendor." };
+    for (const char *p : partitions) {
+        std::string prop_name = std::string("ro.") + p + prop;
+        property_override(prop_name.c_str(), value.c_str());
+    }
 }
 
-void set_dalvik_heap()
+static void set_ro_product_prop(const std::string &prop, const std::string &value)
 {
-    /* For all variant */
+    const char *partitions[] = { "", "odm.", "product.", "system.", "system_ext.", "vendor." };
+    for (const char *p : partitions) {
+        std::string prop_name = std::string("ro.product.") + p + prop;
+        property_override(prop_name.c_str(), value.c_str());
+    }
+}
+
+static void set_dalvik_heap()
+{
     property_override("dalvik.vm.heapstartsize", "14m");
     property_override("dalvik.vm.heapgrowthlimit", "192m");
     property_override("dalvik.vm.heapsize", "384m");
@@ -74,40 +59,32 @@ void set_dalvik_heap()
 void vendor_load_properties()
 {
     std::string bootloader = GetProperty("ro.bootloader", "");
-    std::string device;
 
- if (bootloader.find("J810G") != std::string::npos) {
+    if (bootloader.find("J810G") != std::string::npos) {
         /* SM-J810G */
-        property_override_dual("ro.build.fingerprint", "ro.vendor.build.fingerprint", "samsung/j8y18ltedd/j8y18lte:10/QP1A.190711.020/J810GDDU6CUI1:user/release-keys");
-        property_override("ro.system.build.fingerprint", "samsung/j8y18ltedd/j8y18lte:10/QP1A.190711.020/J810GDDU6CUI1:user/release-keys");
+        set_ro_build_prop("build.fingerprint", "samsung/j8y18ltedd/j8y18lte:10/QP1A.190711.020/J810GDDU6CUI1:user/release-keys");
         property_override("ro.build.description", "j8y18ltedd-user 10 QP1A.190711.020 J810GDDU6CUI1 release-keys");
-        property_override_dual("ro.product.model", "ro.vendor.product.model", "SM-J810G");
-        property_override_dual("ro.product.device", "ro.vendor.product.device", "j8y18lte");
+        set_ro_product_prop("model", "SM-J810G");
+        set_ro_product_prop("device", "j8y18lte");
     } else if (bootloader.find("J810F") != std::string::npos) {
         /* SM-J810F */
-        property_override_dual("ro.build.fingerprint", "ro.vendor.build.fingerprint", "samsung/j8y18ltejv/j8y18lte:10/QP1A.190711.020/J810FJXU6CVA1:user/release-keys");
-        property_override("ro.system.build.fingerprint", "samsung/j8y18ltejv/j8y18lte:10/QP1A.190711.020/J810FJXU6CVA1:user/release-keys");
+        set_ro_build_prop("build.fingerprint", "samsung/j8y18ltejv/j8y18lte:10/QP1A.190711.020/J810FJXU6CVA1:user/release-keys");
         property_override("ro.build.description", "j8y18ltejv-user 10 QP1A.190711.020 J810FJXU6CVA1 release-keys");
-        property_override_dual("ro.product.model", "ro.vendor.product.model", "SM-J810F");
-        property_override_dual("ro.product.device", "ro.vendor.product.device", "j8y18lte");
-    } else if (bootloader.find("J810M") != std::string::npos) {
-        /* SM-J810M */
-        property_override_dual("ro.build.fingerprint", "ro.vendor.build.fingerprint", "samsung/j8y18lteub/j8y18lte:10/QP1A.190711.020/J810MUBU3CUK1:user/release-keys");
-        property_override("ro.system.build.fingerprint", "samsung/j8y18lteub/j8y18lte:10/QP1A.190711.020/J810MUBU3CUK1:user/release-keys");
-        property_override("ro.build.description", "j8y18lteub-user 10 QP1A.190711.020 J810MUBU3CUK1 release-keys");
-        property_override_dual("ro.product.model", "ro.vendor.product.model", "SM-J810M");
-        property_override_dual("ro.product.device", "ro.vendor.product.device", "j8y18lte");
+        set_ro_product_prop("model", "SM-J810F");
+        set_ro_product_prop("device", "j8y18lte");
     } else if (bootloader.find("J810Y") != std::string::npos) {
         /* SM-J810Y */
-        property_override_dual("ro.build.fingerprint", "ro.vendor.build.fingerprint", "samsung/j8y18ltedx/j8y18lte:10/QP1A.190711.020/J810YDXU6CVA1:user/release-keys");
-        property_override("ro.system.build.fingerprint", "samsung/j8y18ltedx/j8y18lte:10/QP1A.190711.020/J810YDXU6CVA1:user/release-keys");
+        set_ro_build_prop("build.fingerprint", "samsung/j8y18ltedx/j8y18lte:10/QP1A.190711.020/J810YDXU6CVA1:user/release-keys");
         property_override("ro.build.description", "j8y18ltedx-user 10 QP1A.190711.020 J810YDXU6CVA1 release-keys");
-        property_override_dual("ro.product.model", "ro.vendor.product.model", "SM-J810Y");
-        property_override_dual("ro.product.device", "ro.vendor.product.device", "j8y18lte");
+        set_ro_product_prop("model", "SM-J810Y");
+        set_ro_product_prop("device", "j8y18lte");
+    } else {
+        /* Default / SM-J810M (Brazil / Latin America) */
+        set_ro_build_prop("build.fingerprint", "samsung/j8y18lteub/j8y18lte:10/QP1A.190711.020/J810MUBU3CUK1:user/release-keys");
+        property_override("ro.build.description", "j8y18lteub-user 10 QP1A.190711.020 J810MUBU3CUK1 release-keys");
+        set_ro_product_prop("model", "SM-J810M");
+        set_ro_product_prop("device", "j8y18lte");
     }
 
     set_dalvik_heap();
-
-    device = GetProperty("ro.product.device", "");
-    LOG(ERROR) << "Found bootloader id '" << bootloader.c_str() << "' setting build properties for '" << device.c_str() << "' device\n";
 }

@@ -3,3 +3,11 @@
 readlinkat: 1
 pread64: 1
 mremap: 1
+ioctl: 1
+sysinfo: 1
+ugetrlimit: 1
+getuid32: 1
+getgid32: 1
+geteuid32: 1
+getegid32: 1
+prctl: 1

@@ -12,17 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 LOCAL_PATH := $(call my-dir)
 
 ifeq ($(TARGET_DEVICE),j8y18lte)
 
 include $(call all-makefiles-under,$(LOCAL_PATH))
 
-# Create symbolic links for msadp
-$(shell  mkdir -p $(TARGET_OUT_VENDOR)/firmware; \
-	ln -sf /dev/block/bootdevice/by-name/msadp \
-	$(TARGET_OUT_VENDOR)/firmware/msadp)
+# Create symbolic link for msadp during ninja execution (not Kati)
+MSADP_SYMLINK := $(TARGET_OUT_VENDOR)/firmware/msadp
+$(MSADP_SYMLINK):
+	@echo "Creating msadp symlink: $@"
+	@mkdir -p $(dir $@)
+	$(hide) ln -sf /dev/block/bootdevice/by-name/msadp $@
 
 BT_FIRMWARE_MOUNT_POINT := $(TARGET_OUT_VENDOR)/bt_firmware
 DSP_MOUNT_POINT := $(TARGET_OUT_VENDOR)/dsp
@@ -46,17 +47,16 @@ $(DSP_MOUNT_POINT):
 	@mkdir -p $(TARGET_OUT_VENDOR)/dsp
 
 ALL_DEFAULT_INSTALLED_MODULES += \
+	$(MSADP_SYMLINK) \
 	$(FIRMWARE_MOUNT_POINT) \
 	$(DSP_MOUNT_POINT) \
 	$(MODEM_MOUNT_POINT) \
 	$(BT_FIRMWARE_MOUNT_POINT)
 
-
-
 # RFS
 # for rfs/apq/gnss
 RFS_APQ_GNSS_SYMLINKS := $(TARGET_OUT_VENDOR)/rfs/apq/gnss/
-$(RFS_APQ_GNSS_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
+$(RFS_APQ_GNSS_SYMLINKS):
 	@echo "Creating RFS APQ GNSS folder structure: $@"
 	@rm -rf $@/*
 	@mkdir -p $(dir $@)/readonly/vendor
@@ -67,11 +67,10 @@ $(RFS_APQ_GNSS_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
 	$(hide) ln -sf /vendor/firmware_mnt $@/readonly/firmware
 	$(hide) ln -sf /vendor/firmware $@/readonly/vendor/firmware
 
-
-# for rfs/mdm 
+# for rfs/mdm
 #[PATH rfs/mdm/adsp]
 RFS_MDM_ADSP_SYMLINKS := $(TARGET_OUT_VENDOR)/rfs/mdm/adsp/
-$(RFS_MDM_ADSP_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
+$(RFS_MDM_ADSP_SYMLINKS):
 	@echo "Creating RFS MDM ADSP folder structure: $@"
 	@rm -rf $@/*
 	@mkdir -p $(dir $@)/readonly/vendor
@@ -84,7 +83,7 @@ $(RFS_MDM_ADSP_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
 
 #[PATH rfs/mdm/cdsp]
 RFS_MDM_CDSP_SYMLINKS := $(TARGET_OUT_VENDOR)/rfs/mdm/cdsp/
-$(RFS_MDM_CDSP_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
+$(RFS_MDM_CDSP_SYMLINKS):
 	@echo "Creating RFS MDM CDSP folder structure: $@"
 	@rm -rf $@/*
 	@mkdir -p $(dir $@)/readonly/vendor
@@ -97,7 +96,7 @@ $(RFS_MDM_CDSP_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
 
 #[PATH rfs/mdm/mpss]
 RFS_MDM_MPSS_SYMLINKS := $(TARGET_OUT_VENDOR)/rfs/mdm/mpss/
-$(RFS_MDM_MPSS_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
+$(RFS_MDM_MPSS_SYMLINKS):
 	@echo "Creating RFS MDM MPSS folder structure: $@"
 	@rm -rf $@/*
 	@mkdir -p $(dir $@)/readonly/vendor
@@ -110,7 +109,7 @@ $(RFS_MDM_MPSS_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
 
 #[PATH rfs/mdm/slpi]
 RFS_MDM_SLPI_SYMLINKS := $(TARGET_OUT_VENDOR)/rfs/mdm/slpi/
-$(RFS_MDM_SLPI_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
+$(RFS_MDM_SLPI_SYMLINKS):
 	@echo "Creating RFS MDM SLPI folder structure: $@"
 	@rm -rf $@/*
 	@mkdir -p $(dir $@)/readonly
@@ -122,7 +121,7 @@ $(RFS_MDM_SLPI_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
 
 #[PATH rfs/mdm/tn]
 RFS_MDM_TN_SYMLINKS := $(TARGET_OUT_VENDOR)/rfs/mdm/tn/
-$(RFS_MDM_TN_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
+$(RFS_MDM_TN_SYMLINKS):
 	@echo "Creating RFS MDM TN folder structure: $@"
 	@rm -rf $@/*
 	@mkdir -p $(dir $@)/readonly
@@ -132,10 +131,10 @@ $(RFS_MDM_TN_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
 	$(hide) ln -sf /mnt/vendor/persist/hlos_rfs/shared $@/hlos
 	$(hide) ln -sf /vendor/firmware_mnt $@/readonly/firmware
 
-# for rfs/msm 
+# for rfs/msm
 #[PATH rfs/msm/adsp]
 RFS_MSM_ADSP_SYMLINKS := $(TARGET_OUT_VENDOR)/rfs/msm/adsp/
-$(RFS_MSM_ADSP_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
+$(RFS_MSM_ADSP_SYMLINKS):
 	@echo "Creating RFS MSM ADSP folder structure: $@"
 	@rm -rf $@/*
 	@mkdir -p $(dir $@)/readonly/vendor
@@ -148,7 +147,7 @@ $(RFS_MSM_ADSP_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
 
 #[PATH rfs/msm/cdsp]
 RFS_MSM_CDSP_SYMLINKS := $(TARGET_OUT_VENDOR)/rfs/msm/cdsp/
-$(RFS_MSM_CDSP_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
+$(RFS_MSM_CDSP_SYMLINKS):
 	@echo "Creating RFS MSM CDSP folder structure: $@"
 	@rm -rf $@/*
 	@mkdir -p $(dir $@)/readonly/vendor
@@ -161,7 +160,7 @@ $(RFS_MSM_CDSP_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
 
 #[PATH rfs/msm/mpss]
 RFS_MSM_MPSS_SYMLINKS := $(TARGET_OUT_VENDOR)/rfs/msm/mpss/
-$(RFS_MSM_MPSS_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
+$(RFS_MSM_MPSS_SYMLINKS):
 	@echo "Creating RFS MSM MPSS folder structure: $@"
 	@rm -rf $@/*
 	@mkdir -p $(dir $@)/readonly/vendor
@@ -172,10 +171,9 @@ $(RFS_MSM_MPSS_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
 	$(hide) ln -sf /vendor/firmware-modem $@/readonly/firmware
 	$(hide) ln -sf /vendor/firmware $@/readonly/vendor/firmware
 
-
 #[PATH rfs/msm/slpi]
 RFS_MSM_SLPI_SYMLINKS := $(TARGET_OUT_VENDOR)/rfs/msm/slpi/
-$(RFS_MSM_SLPI_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
+$(RFS_MSM_SLPI_SYMLINKS):
 	@echo "Creating RFS MSM SLPI folder structure: $@"
 	@rm -rf $@/*
 	@mkdir -p $(dir $@)/readonly/vendor
@@ -186,17 +184,15 @@ $(RFS_MSM_SLPI_SYMLINKS): $(LOCAL_INSTALLED_MODULE)
 	$(hide) ln -sf /vendor/firmware_mnt $@/readonly/firmware
 	$(hide) ln -sf /vendor/firmware $@/readonly/vendor/firmware
 
-
-
 ALL_DEFAULT_INSTALLED_MODULES += \
-		$(RFS_APQ_GNSS_SYMLINKS) \
-		$(RFS_MDM_ADSP_SYMLINKS) \
-		$(RFS_MDM_CDSP_SYMLINKS) \
-		$(RFS_MDM_MPSS_SYMLINKS) \
-		$(RFS_MDM_SLPI_SYMLINKS) \
-		$(RFS_MDM_TN_SYMLINKS) \
-		$(RFS_MSM_ADSP_SYMLINKS) \
-		$(RFS_MSM_CDSP_SYMLINKS) \
-		$(RFS_MSM_MPSS_SYMLINKS) \
-		$(RFS_MSM_SLPI_SYMLINKS) 
+	$(RFS_APQ_GNSS_SYMLINKS) \
+	$(RFS_MDM_ADSP_SYMLINKS) \
+	$(RFS_MDM_CDSP_SYMLINKS) \
+	$(RFS_MDM_MPSS_SYMLINKS) \
+	$(RFS_MDM_SLPI_SYMLINKS) \
+	$(RFS_MDM_TN_SYMLINKS) \
+	$(RFS_MSM_ADSP_SYMLINKS) \
+	$(RFS_MSM_CDSP_SYMLINKS) \
+	$(RFS_MSM_MPSS_SYMLINKS) \
+	$(RFS_MSM_SLPI_SYMLINKS)
 endif

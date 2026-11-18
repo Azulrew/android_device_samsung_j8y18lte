@@ -10,3 +10,12 @@ getcwd: 1
 getdents64: 1
 inotify_init1: 1
 inotify_add_watch: 1
+ioctl: 1
+sched_setaffinity: 1
+ugetrlimit: 1
+getuid32: 1
+getgid32: 1
+geteuid32: 1
+getegid32: 1
+getgroups32: 1
+prctl: 1

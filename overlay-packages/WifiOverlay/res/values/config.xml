@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- SM-J810M uses 2.4 GHz 802.11b/g/n WCN3620 -->
+    <bool translatable="false" name="config_wifi5ghzSupport">false</bool>
+    <bool translatable="false" name="config_wifi_background_scan_support">true</bool>
+    <bool translatable="false" name="config_wifi_batched_scan_supported">true</bool>
+    <bool translatable="false" name="config_wifi_softap_acs_supported">true</bool>
+    <bool translatable="false" name="config_wifi_softap_ieee80211ac_supported">false</bool>
+</resources>

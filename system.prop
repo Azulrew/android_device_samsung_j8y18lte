@@ -199,6 +199,9 @@ ro.cmc.version=2.0
 #
 ro.vendor.qti.va_aosp.support=1
 
+# Disable eBPF loading on Linux 3.18 (LineageOS-UL support)
+ro.kernel.ebpf.supported=false
+
 # read DS/SS property
 import /efs/factory.prop *
 
